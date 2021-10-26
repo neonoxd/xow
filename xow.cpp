@@ -18,6 +18,7 @@
 
 #include "utils/log.h"
 #include "utils/reader.h"
+#include "utils/sock.h"
 #include "dongle/usb.h"
 #include "dongle/dongle.h"
 
@@ -25,10 +26,18 @@
 #include <csignal>
 #include <sys/signalfd.h>
 
-int main()
+int main(int argc, char* argv[])
 {
     Log::init();
     Log::info("xow %s ©Severin v. W.", VERSION);
+    if (argc > 1) 
+    {
+        Log::info("launched with args: %d", argc);
+        Log::info("found param: [%s] polybar ipc enabled", argv[1]);
+        Socks::createConnection();
+        if (Socks::act_sock < 0)
+            return EXIT_FAILURE;
+    }
 
     sigset_t signalMask;
 
@@ -101,12 +110,13 @@ int main()
         if (type == SIGUSR1)
         {
             Log::debug("User signal received");
-
+            std::string msgc = Socks::concat_string("PS|", std::to_string(1));
+            Socks::sendMessage(msgc);
             dongle.setPairingStatus(true);
         }
     }
 
-    Log::info("Shutting down...");
+    Log::info("Shutting downw...");
 
     return EXIT_SUCCESS;
 }

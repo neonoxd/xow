@@ -18,12 +18,17 @@
 
 #include "dongle.h"
 #include "../utils/log.h"
+#include "../utils/sock.h"
+#include <sstream>
+#include <string>
 
 Dongle::Dongle(
     std::unique_ptr<UsbDevice> usbDevice
 ) : Mt76(std::move(usbDevice)), stopThreads(false)
 {
     Log::info("Dongle initialized");
+    std::string msgc = Socks::concat_string("DN|", std::to_string(1));
+    Socks::sendMessage(msgc);
 
     threads.emplace_back(
         &Dongle::readBulkPackets,
@@ -75,6 +80,8 @@ void Dongle::handleControllerConnect(Bytes address)
     controllers[wcid - 1].reset(new Controller(sendPacket));
 
     Log::info("Controller '%d' connected", wcid);
+    std::string msgc = Socks::concat_string("CC|", std::to_string(wcid));
+    Socks::sendMessage(msgc);
 }
 
 void Dongle::handleControllerDisconnect(uint8_t wcid)
@@ -103,6 +110,8 @@ void Dongle::handleControllerDisconnect(uint8_t wcid)
     }
 
     Log::info("Controller '%d' disconnected", wcid);
+    std::string msgc = Socks::concat_string("CD|", std::to_string(wcid));
+    Socks::sendMessage(msgc);
 }
 
 void Dongle::handleControllerPair(Bytes address, const Bytes &packet)

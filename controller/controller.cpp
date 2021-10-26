@@ -18,6 +18,9 @@
 
 #include "controller.h"
 #include "../utils/log.h"
+#include "../utils/sock.h"
+#include <sstream>
+#include <string>
 
 #include <cstdlib>
 #include <cmath>
@@ -103,7 +106,9 @@ void Controller::statusReceived(uint8_t id, const StatusData *status)
         return;
     }
 
-    Log::info("Battery level: %s", levels[level].c_str());
+    Log::info("Battery level: %s %d", levels[level].c_str(), level);
+    std::string msgc = Socks::concat_string("BL|", std::to_string(id), "|", std::to_string(level));
+    Socks::sendMessage(msgc);
 
     batteryLevel = level;
 }
