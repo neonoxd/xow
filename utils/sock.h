@@ -5,6 +5,8 @@
 namespace Socks
 {
     extern int act_sock;
+    extern bool sockMode;
+    extern int custom_port;
     int createConnection();
     int sendMessage(std::string message);
 

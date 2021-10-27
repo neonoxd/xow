@@ -21,22 +21,42 @@
 #include "utils/sock.h"
 #include "dongle/usb.h"
 #include "dongle/dongle.h"
-
+#include <algorithm>
+#include <iostream>
+#include <sstream>
 #include <cstring>
 #include <csignal>
 #include <sys/signalfd.h>
 
-int main(int argc, char* argv[])
+char* getCmdOption(char ** begin, char ** end, const std::string & option)
+{
+    char ** itr = std::find(begin, end, option);
+    if (itr != end && ++itr != end)
+    {
+        return *itr;
+    }
+    return 0;
+}
+
+int main(int argc, char * argv[])
 {
     Log::init();
     Log::info("xow %s ©Severin v. W.", VERSION);
     if (argc > 1) 
     {
+        char * customPortChr = getCmdOption(argv, argv + argc, "-p");
         Log::info("launched with args: %d", argc);
         Log::info("found param: [%s] polybar ipc enabled", argv[1]);
+        if (customPortChr) {
+            std::stringstream strValue;
+            strValue << customPortChr;
+            strValue >> Socks::custom_port;
+            Log::info("with value %d", Socks::custom_port);
+        }
+        Socks::sockMode = true;
         Socks::createConnection();
         if (Socks::act_sock < 0)
-            return EXIT_FAILURE;
+            Log::error("Couldn't connect to socket. retrying with the next message.");
     }
 
     sigset_t signalMask;
@@ -116,7 +136,7 @@ int main(int argc, char* argv[])
         }
     }
 
-    Log::info("Shutting downw...");
+    Log::info("Shutting down...");
 
     return EXIT_SUCCESS;
 }
