@@ -34,7 +34,7 @@
 class Controller : public GipDevice
 {
 public:
-    Controller(SendPacket sendPacket);
+    Controller(SendPacket sendPacket, uint8_t wcid);
     ~Controller();
 
 private:
@@ -57,7 +57,8 @@ private:
         ff_effect effect,
         uint8_t replayCount
     );
-
+    
+    uint8_t wcid;
     InputDevice inputDevice;
     std::atomic<bool> stopRumbleThread;
     std::thread rumbleThread;

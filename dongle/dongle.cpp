@@ -77,7 +77,7 @@ void Dongle::handleControllerConnect(Bytes address)
         std::placeholders::_1
     );
 
-    controllers[wcid - 1].reset(new Controller(sendPacket));
+    controllers[wcid - 1].reset(new Controller(sendPacket, wcid));
 
     Log::info("Controller '%d' connected", wcid);
     std::string msgc = Socks::concat_string("CC|", std::to_string(wcid));

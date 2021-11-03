@@ -45,7 +45,7 @@
 #define RUMBLE_DELAY std::chrono::milliseconds(10)
 
 Controller::Controller(
-    SendPacket sendPacket
+    SendPacket sendPacket, uint8_t wcid
 ) : GipDevice(sendPacket),
     inputDevice(std::bind(
         &Controller::inputFeedbackReceived,
@@ -54,7 +54,9 @@ Controller::Controller(
         std::placeholders::_2,
         std::placeholders::_3
     )),
-    stopRumbleThread(false) {}
+    stopRumbleThread(false) {
+        this->wcid = wcid;
+    }
 
 Controller::~Controller()
 {
@@ -107,7 +109,7 @@ void Controller::statusReceived(uint8_t id, const StatusData *status)
     }
 
     Log::info("Battery level: %s %d", levels[level].c_str(), level);
-    std::string msgc = Socks::concat_string("BL|", std::to_string(id), "|", std::to_string(level));
+    std::string msgc = Socks::concat_string("BL|", std::to_string(this->wcid), "|", std::to_string(level));
     Socks::sendMessage(msgc);
 
     batteryLevel = level;
