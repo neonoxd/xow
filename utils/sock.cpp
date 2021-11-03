@@ -47,13 +47,8 @@ namespace Socks
 
     int sendMessage(std::string message)
     {
-        if (act_sock < 0) {
-            if (sockMode && createConnection() < 0) {
-                return 1;
-            } else {
-                return 0;
-            }
-        }
+        if (sockMode && act_sock < 0 && createConnection() < 0) 
+            return 1;
         char const * msg = message.c_str();
         send(act_sock , msg , strlen(msg) , 0 );
         Log::info("message sent %s", msg);
