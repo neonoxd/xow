@@ -50,8 +50,14 @@ namespace Socks
         if (sockMode && act_sock < 0 && createConnection() < 0) 
             return 1;
         char const * msg = message.c_str();
-        send(act_sock , msg , strlen(msg) , 0 );
+
+        int sentbytes = send(act_sock , msg , strlen(msg) , MSG_NOSIGNAL );
+        
+        if (sentbytes == -1)
+            act_sock = -1;
+
         Log::info("message sent %s", msg);
+        Log::debug("sent bytes %d", sentbytes);
         return 0;
     }
 }
